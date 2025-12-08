@@ -1,19 +1,59 @@
-Below is your **final, production-ready, beautifully formatted README.md** for your GitHub repository.
-It reflects the **pamela-api + pamela-spa** monorepo structure and includes installation guides, features, tech stack, developer workflows, and clear documentation.
+<p align="center">
+  <img src="https://via.placeholder.com/900x200.png?text=Pamela+Inventory+System" alt="Pamela Inventory Banner" />
+</p>
 
-You can **copy/paste this entire file into `README.md`** in your repo.
+<h1 align="center">Pamela Inventory System</h1>
 
----
+<p align="center">A modern, barcode-powered inventory platform built with Laravel + React.</p>
 
-# 📦 **Pamela Inventory System — API + SPA (Monorepo)**
+<p align="center">
+  <a href="https://github.com/israillaky/pamela-inventory">
+    <img src="https://img.shields.io/github/repo-size/israillaky/pamela-inventory?color=blue&style=for-the-badge" />
+  </a>
+  <a href="#">
+    <img src="https://img.shields.io/badge/Laravel-11-red?style=for-the-badge" />
+  </a>
+  <a href="#">
+    <img src="https://img.shields.io/badge/React-18-blue?style=for-the-badge" />
+  </a>
+  <a href="#">
+    <img src="https://img.shields.io/badge/Vite-fast-purple?style=for-the-badge" />
+  </a>
+  <a href="https://github.com/israillaky/pamela-inventory/issues">
+    <img src="https://img.shields.io/github/issues/israillaky/pamela-inventory?style=for-the-badge" />
+  </a>
+  <a href="#">
+    <img src="https://img.shields.io/badge/license-Private-red?style=for-the-badge" />
+  </a>
+</p>
 
-A modern, barcode-powered inventory management system built with:
 
-* **Laravel API (pamela-api)**
-* **React + Vite SPA (pamela-spa)**
-* Fully supports future **Electron Desktop** and **React Native Mobile** clients.
+> **Pamela Inventory System** is a unified multi-platform inventory system built for warehouse and retail environments — featuring barcode automation, stock management, reporting, role-based security, and a clean React SPA interface backed by a Laravel API.
 
-Designed for speed, clarity, and reliability across warehouse, retail, and admin workflows.
+
+> **Pamela Inventory System** is a unified multi-platform inventory system built for warehouse and retail environments — featuring barcode automation, stock management, reporting, role-based security, and a clean React SPA interface backed by a Laravel API.
+```
+
+# **📦 Pamela Inventory System — API + SPA (Monorepo)**
+
+<p align="center">
+  <img src="https://via.placeholder.com/900x200.png?text=Pamela+Inventory+System" alt="Pamela Inventory System Banner" />
+</p>
+
+<p align="center">
+  <a href="https://github.com/YOUR_USERNAME/pamela-inventory">
+    <img src="https://img.shields.io/github/repo-size/YOUR_USERNAME/pamela-inventory?color=blue&style=for-the-badge" />
+  </a>
+  <img src="https://img.shields.io/badge/Laravel-11-red?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/React-18-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Vite-fast-purple?style=for-the-badge" />
+  <a href="https://github.com/YOUR_USERNAME/pamela-inventory/issues">
+    <img src="https://img.shields.io/github/issues/YOUR_USERNAME/pamela-inventory?style=for-the-badge" />
+  </a>
+  <img src="https://img.shields.io/badge/license-Private-red?style=for-the-badge" />
+</p>
+
+> **Pamela Inventory System** is a unified multi-platform inventory solution designed for retail and warehouse operations, featuring barcode-driven workflows, stock management, reporting, and secure role-based access — powered by Laravel API and a React SPA frontend.
 
 ---
 
@@ -25,66 +65,45 @@ pamela-inventory/
 ├── pamela-api/       # Laravel 11 API backend
 ├── pamela-spa/       # React + Vite Single Page Application
 │
-└── README.md         # You are here
+└── README.md
 ```
 
 ---
 
-# 🚀 **Features Overview**
+## 🚀 **Features Overview**
 
-## 🔧 **Backend — Laravel API (pamela-api)**
+### 🔧 Backend — Laravel API (`pamela-api`)
 
-* API-only architecture (`/api/v1/*`)
-* Token authentication via Sanctum
-* Central roles system:
-
-  * `super_admin`
-  * `admin`
-  * `staff`
-  * `warehouse_manager`
-  * `warehouse_staff`
-  * `cashier`
-* Product catalog (brand, category, child category)
-* Stock In / Stock Out module:
-
-  * Inline QTY editing
-  * Price snapshot logic
-  * Auto-calculations of totals
-* Barcode generation (Code 128)
-* Reporting:
-
-  * Totals (In, Out, Sales)
-  * Date filtering
-  * CSV / PDF-ready endpoints
-* Audit Log recording (user actions saved automatically)
-* Super Admin protections (cannot delete or downgrade)
-* Universal exception handler for consistent API responses
+* API-only architecture using `/api/v1/*`
+* Authentication via Sanctum
+* Role-based permissions
+* Products, Brands, Categories, Child Categories
+* Stock In / Stock Out with inline editing & price snapshot
+* Code-128 barcode generation
+* Reports (Totals, Sales, Filters, Export-ready)
+* Audit log tracking
+* Super Admin protection rules
+* Global exception handler
 
 ---
 
-## 🌐 **Frontend — React SPA (pamela-spa)**
+### 🌐 Frontend — React SPA (`pamela-spa`)
 
-* Vite + TypeScript + Tailwind v4
-* Authentication + persistent session
-* Role-based access control (sidebar + routes)
-* Global connection checker (online / offline / reconnecting)
-* Product, Category, Brands module
-* Stock In / Stock Out workflows:
-
-  * Scanner-friendly
-  * Barcode → auto-select product
-  * Auto-focus quantity input
-  * Press Enter to add instantly
-* Reports page with filters, summaries, and export buttons
-* Audit Log viewer
-* Modular API client with Axios interceptors
-* Fully responsive sidebar with dynamic icons
+* React + Vite + TypeScript
+* TailwindCSS v4
+* Axios API client with interceptors
+* Role-based routing + sidebar
+* Online/offline server connection checker
+* Stock In/Out workflow optimized for barcode scanners
+* Reports UI with filters
+* Audit Logs page
+* Reusable components and hooks
 
 ---
 
 # 🏁 **Installation Guide**
 
-## 1️⃣ Clone Repository
+## 📥 1. Clone Repository
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/pamela-inventory.git
@@ -93,7 +112,7 @@ cd pamela-inventory
 
 ---
 
-# 🖥️ **Backend Setup — pamela-api**
+# 🖥️ Backend Setup — pamela-api
 
 ```bash
 cd pamela-api
@@ -102,34 +121,27 @@ composer install
 php artisan key:generate
 ```
 
-Configure:
+Configure `.env`:
 
 * Database
-* Mail (Gmail SMTP works)
-* CORS
+* Mail (Gmail SMTP supported)
 * APP_URL
 
-### Run migrations + seeders
+Run migrations:
 
 ```bash
 php artisan migrate --seed
 ```
 
-### Start server
+Start API:
 
 ```bash
 php artisan serve
 ```
 
-Default API:
-
-```
-http://127.0.0.1:8000
-```
-
 ---
 
-# 🌐 **Frontend Setup — pamela-spa**
+# 🌐 Frontend Setup — pamela-spa
 
 ```bash
 cd pamela-spa
@@ -137,130 +149,82 @@ cp .env.example .env
 npm install
 ```
 
-Ensure:
+Set API endpoint:
 
 ```
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-Start:
+Start development server:
 
 ```bash
 npm run dev
 ```
 
-Default SPA:
-
-```
-http://127.0.0.1:5173
-```
-
 ---
 
-# 🔐 **Default Login (dev environment)**
+# 🔐 Default Login
 
 ```
 username: admin
 password: password
 ```
 
-*(Seeded once via database seeder.)*
-
 ---
 
-# 🧱 **Tech Stack**
+# 🧱 Tech Stack
 
-## Backend
+### Backend
 
 * Laravel 11
-* Sanctum (API tokens)
-* MySQL / MariaDB
-* Code-128 Barcode generation
-* PDF/CSV export-ready endpoints
+* Sanctum
+* MySQL
+* Code-128 Barcode
 
-## Frontend
+### Frontend
 
 * React 18
 * Vite
 * TypeScript
-* Tailwind CSS v4
+* TailwindCSS
 * Axios
-* Heroicons
 
 ---
 
-# 📊 **Core Modules**
+# 📊 Core Modules
 
-### ✔ Products
-
-Create, search, sort, brand + category mapping, low-stock indicators.
-
-### ✔ Categories + Child Categories
-
-Hierarchical filtering and clean UI.
-
-### ✔ Stock In
-
-Scan → confirm → add stock instantly.
-
-### ✔ Stock Out
-
-Barcode-based deduction with price snapshot & inline QTY edits.
-
-### ✔ Reports
-
-Aggregated totals, date filters, export support.
-
-### ✔ Audit Logs
-
-Tracks: create, update, delete, system actions.
+* Products
+* Categories & Child Categories
+* Stock In
+* Stock Out
+* Reports
+* Audit Logs
 
 ---
 
-# 📡 **Connection Status System**
+# 📡 Connection Status System
 
-SPA shows:
-
-* 🟢 Online
-* 🔴 Offline
-* 🟡 Checking…
-
-Based on API health endpoint:
+SPA checks API health via:
 
 ```
 GET /api/v1/health
 ```
 
----
+Displays:
 
-# 📄 **.gitignore Included**
-
-This repo uses a unified `.gitignore` covering:
-
-* Laravel vendor + storage
-* Node modules + dist
-* Environment files
-* Cache + logs
-* Electron + React Native future folders
-* OS junk files
-* IDE configs
-
-(Already included in repository for security and cleanliness.)
+* 🟢 Online
+* 🔴 Offline
+* 🟡 Checking…
 
 ---
 
-# 🤝 **Contribution Workflow**
+# 🤝 Contribution Workflow
 
 ```bash
-git checkout -b feature/my-new-feature
-git add .
+git checkout -b feature/my-feature
 git commit -m "Add new feature"
-git push origin feature/my-new-feature
+git push origin feature/my-feature
 ```
-
-* Use clear commit messages
-* Keep PRs small and focused
-* Follow existing formatting and code patterns
 
 ---
 
@@ -284,18 +248,17 @@ npm run lint
 
 ---
 
-# 📱 **Future Extensions**
+# 📱 Future Extensions
 
-* Electron desktop app (wrapped around SPA)
-* React Native / Expo barcode scanner
-* Offline-first mobile sync
-* Thermal/printer support for labels
-* QR and RFID support
+* Electron Desktop App
+* React Native App
+* Offline-first mode
+* Label/receipt printer support
+* QR + RFID integration
 
 ---
 
 # 📜 License
 
 Private internal inventory system — all rights reserved.
-
  
