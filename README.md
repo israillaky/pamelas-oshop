@@ -79,7 +79,7 @@ pamela-inventory/
 ## 📥 1. Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/pamela-inventory.git
+git clone https://github.com/israillaky/pamela-inventory.git
 cd pamela-inventory
 ```
 
