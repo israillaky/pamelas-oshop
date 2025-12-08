@@ -1,0 +1,107 @@
+# ===========================
+# GLOBAL IGNORE (Root)
+# ===========================
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+
+# Node / NPM
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Log Files
+*.log
+logs/
+*.pid
+
+# Environment / Secrets
+.env
+.env.*
+!.env.example
+
+# Build Artifacts
+dist/
+build/
+public/build/
+public/hot
+
+# Temp / Cache
+temp/
+tmp/
+.cache/
+*.cache
+*.tmp
+*.temp
+
+# ===========================
+# LARAVEL API
+# ===========================
+/pamela-api/vendor/
+/pamela-api/node_modules/
+pamela-api/storage/
+!pamela-api/storage/app/public/
+pamela-api/storage/*.key
+pamela-api/public/storage
+pamela-api/bootstrap/cache/*.php
+pamela-api/bootstrap/cache/*.cache
+
+# Laravel Health Files
+pamela-api/storage/logs/*.log
+
+# Laravel IDE Helper
+_pamela-api_ide_helper.php
+_pamela-api_ide_helper_models.php
+
+# ===========================
+# REACT SPA
+# ===========================
+/pamela-spa/node_modules/
+/pamela-spa/dist/
+/pamela-spa/.vite/
+
+# Local dev tool artifacts
+pamela-spa/.eslintcache
+pamela-spa/.parcel-cache/
+
+# ===========================
+# ELECTRON (future)
+# ===========================
+electron/node_modules/
+electron/dist/
+electron/out/
+electron/.webpack/
+
+# ===========================
+# REACT NATIVE (future)
+# ===========================
+/mobile/node_modules/
+/mobile/.expo/
+/mobile/.expo-shared/
+/mobile/android/app/debug.keystore
+/mobile/dist/
+
+# ===========================
+# LOGS (shared)
+# ===========================
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# ===========================
+# BACKUP FILES
+# ===========================
+*.bak
+*.backup
+*.old
+*~
