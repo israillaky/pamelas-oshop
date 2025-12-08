@@ -1,0 +1,202 @@
+@import "tailwindcss";
+/* Plugins */
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+
+@import "tailwindcss";
+
+/* 1) THEME TOKENS (colors, font, shadows, breakpoints) */
+@theme {
+  /* Font */
+  --font-*: initial;
+  --font-outfit: Outfit, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+
+  /* Breakpoints (optional custom ones, but we keep sm/md/lg/xl/2xl consistent) */
+  --breakpoint-*: initial;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* Brand + gray palette */
+  --color-white: #ffffff;
+  --color-black: #101828;
+
+  --color-brand-25: #f2f7ff;
+  --color-brand-50: #ecf3ff;
+  --color-brand-100: #dde9ff;
+  --color-brand-200: #c2d6ff;
+  --color-brand-300: #9cb9ff;
+  --color-brand-400: #7592ff;
+  --color-brand-500: #465fff; /* main primary */
+  --color-brand-600: #3641f5;
+  --color-brand-700: #2a31d8;
+  --color-brand-800: #252dae;
+  --color-brand-900: #262e89;
+  --color-brand-950: #161950;
+
+  --color-gray-25: #fcfcfd;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f2f4f7;
+  --color-gray-200: #e4e7ec;
+  --color-gray-300: #d0d5dd;
+  --color-gray-400: #98a2b3;
+  --color-gray-500: #667085;
+  --color-gray-600: #475467;
+  --color-gray-700: #344054;
+  --color-gray-800: #1d2939;
+  --color-gray-900: #101828;
+
+  /* Semantic: success / warning / error (simplified) */
+  --color-success-50: #ecfdf3;
+  --color-success-500: #12b76a;
+  --color-success-600: #039855;
+
+  --color-warning-50: #fffaeb;
+  --color-warning-500: #f79009;
+
+  --color-error-50: #fef3f2;
+  --color-error-500: #f04438;
+  --color-error-600: #d92d20;
+
+  /* Shadows */
+  --shadow-theme-sm: 0px 1px 3px 0px rgba(16, 24, 40, 0.1),
+    0px 1px 2px 0px rgba(16, 24, 40, 0.06);
+  --shadow-theme-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.1),
+    0px 2px 4px -2px rgba(16, 24, 40, 0.06);
+  --shadow-theme-lg: 0px 12px 16px -4px rgba(16, 24, 40, 0.08),
+    0px 4px 6px -2px rgba(16, 24, 40, 0.03);
+}
+
+/* 2) BASE LAYER (normalize + body styles) */
+@layer base {
+    /* 1) Register local font files */
+  @font-face {
+    font-family: "Outfit";
+    src: url("/fonts/Outfit-Regular.tff") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Outfit";
+    src: url("/fonts/Outfit-Medium.tff") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Outfit";
+    src: url("/fonts/Outfit-SemiBold.tff") format("truetype");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Outfit";
+    src: url("/fonts/Outfit-Bold.tff") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  /* Tailwind v4 border-color compatibility */
+  *,
+  ::before,
+  ::after,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  body {
+    @apply min-h-screen bg-gray-50 text-gray-900 font-outfit antialiased;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* 3) SIMPLE UTILITIES (for sidebar/menu, scroll, etc.) */
+@utility menu-item {
+  @apply relative flex items-center w-full gap-3 px-3 py-2 text-sm font-medium rounded-lg;
+}
+
+@utility menu-item-active {
+  @apply bg-brand-50 text-brand-600;
+}
+
+@utility menu-item-inactive {
+  @apply text-gray-600 hover:bg-gray-100;
+}
+
+@utility menu-item-icon {
+  @apply text-gray-400;
+}
+
+@utility menu-item-icon-active {
+  @apply text-brand-500;
+}
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@utility custom-scrollbar {
+  &::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
+  &::-webkit-scrollbar-track {
+    @apply rounded-full;
+  }
+  &::-webkit-scrollbar-thumb {
+    @apply bg-gray-200 rounded-full;
+  }
+}
+
+/* 4) SMALL FORM TWEAKS (dates, etc.) */
+@layer utilities {
+  input[type="date"]::-webkit-inner-spin-button,
+  input[type="time"]::-webkit-inner-spin-button,
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+  }
+}
+
+/* react-select tailwind friendly styles */
+.rs__control {
+  @apply border border-gray-300 rounded-lg shadow-none min-h-[40px];
+}
+
+.rs__control--is-focused {
+  @apply border-blue-500 ring-2 ring-blue-100;
+}
+
+.rs__menu {
+  @apply border border-gray-200 shadow-lg rounded-lg bg-white z-50;
+}
+
+.rs__option {
+  @apply px-3 py-2 text-sm cursor-pointer;
+}
+
+.rs__option--is-focused {
+  @apply bg-gray-100;
+}
+
+.rs__option--is-selected {
+  @apply bg-blue-600 text-white;
+}
