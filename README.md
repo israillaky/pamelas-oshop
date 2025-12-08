@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://via.placeholder.com/900x200.png?text=Pamela+Inventory+System" alt="Pamela Inventory Banner" />
+  <img src="https://placehold.co/900x200?text=Pamela+Inventory+System" alt="Pamela Inventory Banner" />
 </p>
 
 <h1 align="center">Pamela Inventory System</h1>
@@ -26,10 +26,6 @@
     <img src="https://img.shields.io/badge/license-Private-red?style=for-the-badge" />
   </a>
 </p>
-
-
-> **Pamela Inventory System** is a unified multi-platform inventory system built for warehouse and retail environments — featuring barcode automation, stock management, reporting, role-based security, and a clean React SPA interface backed by a Laravel API.
-
 
 > **Pamela Inventory System** is a unified multi-platform inventory system built for warehouse and retail environments — featuring barcode automation, stock management, reporting, role-based security, and a clean React SPA interface backed by a Laravel API.
 ```
