@@ -10,6 +10,7 @@ import { useConnection } from "../hooks/useConnection";
 import { useForbidden } from "../contexts/useForbidden";
 import { AccessDeniedModal } from "../components/access/AccessDeniedModal";
 import { useNavigate } from "react-router-dom";
+import { ServerSettingsModal } from "../components/connection/ServerSettingsModal";
 
 type AppLayoutProps = {
   title?: string;
@@ -26,6 +27,8 @@ export const AppLayout = ({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+  const [serverModalOpen, setServerModalOpen] = useState(false);
+
   const navigate = useNavigate();
   const { forbiddenOpen, message, clearForbidden } = useForbidden();
 
@@ -38,18 +41,14 @@ export const AppLayout = ({
   const typedUser = user as UserLike;
   const displayName = typedUser?.name ?? typedUser?.username ?? "User";
 
-  // Decide what to toggle based on current viewport
   const handleToggleSidebar = () => {
     if (typeof window !== "undefined" && window.innerWidth < 1024) {
-      // Mobile: open/close drawer
       setMobileSidebarOpen((prev) => !prev);
     } else {
-      // Desktop: collapse/expand
       setSidebarCollapsed((prev) => !prev);
     }
   };
 
-  // Close mobile sidebar when resizing to desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
@@ -57,12 +56,11 @@ export const AppLayout = ({
       }
     };
 
-    handleResize(); // sync once on mount
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Disable body scroll when mobile sidebar is open
   useEffect(() => {
     if (mobileSidebarOpen) {
       document.body.style.overflow = "hidden";
@@ -75,6 +73,11 @@ export const AppLayout = ({
     };
   }, [mobileSidebarOpen]);
 
+  // 🔹 now just call the context method
+  const handleServerUrlSaved = (newUrl: string) => {
+    connection.setServerUrlFromSettings(newUrl);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 font-outfit text-gray-800">
       <div className="flex min-h-screen">
@@ -83,7 +86,8 @@ export const AppLayout = ({
           isMobileOpen={mobileSidebarOpen}
           onCloseMobile={() => setMobileSidebarOpen(false)}
           status={connection.status}
-          serverUrl={connection.serverUrl}
+          serverUrl={connection.serverUrl}          
+          onOpenServerSettings={() => setServerModalOpen(true)}
         />
 
         <div className="flex flex-1 flex-col">
@@ -106,6 +110,13 @@ export const AppLayout = ({
         open={forbiddenOpen}
         message={message || undefined}
         onClose={handleForbiddenClose}
+      />
+
+      <ServerSettingsModal
+        open={serverModalOpen}
+        initialUrl={connection.serverUrl}
+        onClose={() => setServerModalOpen(false)}
+        onSaved={handleServerUrlSaved}
       />
     </div>
   );

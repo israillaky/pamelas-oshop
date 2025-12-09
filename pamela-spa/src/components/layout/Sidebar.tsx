@@ -14,6 +14,7 @@ import {
   ClipboardDocumentListIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../../hooks/useAuth";
+import logo from "../../assets/icon.png";
 
 type UserRole =
   | "super_admin"
@@ -29,6 +30,8 @@ type NavItem = {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   allowedRoles: UserRole[];
 };
+
+
 
 const navItems: NavItem[] = [
   {
@@ -104,6 +107,7 @@ type SidebarProps = {
   onCloseMobile: () => void;
   status: ConnectionStatusValue;
   serverUrl: string;
+  onOpenServerSettings?: () => void; // 🔹 NEW
 };
 
 export const Sidebar = ({
@@ -112,6 +116,7 @@ export const Sidebar = ({
   onCloseMobile,
   status,
   serverUrl,
+  onOpenServerSettings
 }: SidebarProps) => {
   const { user } = useAuth();
   const role = user?.role as UserRole | undefined;
@@ -142,7 +147,7 @@ export const Sidebar = ({
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-200 text-sm font-bold text-white">
             <img
-              src="/icon.png"
+              src={logo}
               alt="App logo"
               className="h-6 w-6 object-contain"
             />
@@ -192,11 +197,20 @@ export const Sidebar = ({
           {showLabels && <span className="font-medium">{statusLabel}</span>}
         </div>
         {showLabels && (
-          <div className="mt-1 line-clamp-2 break-all text-[12px] text-gray-500">
-            {serverUrl
-              ? `Connected to: ${serverUrl}`
-              : "Connected to: (no API URL)"}
-          </div>
+          <>
+            <div className="mt-1 line-clamp-2 break-all text-[12px] text-gray-500">
+              {serverUrl
+                ? `Connected to: ${serverUrl}`
+                : "Connected to: (no API URL)"}
+            </div>
+            <button
+              type="button"
+              onClick={onOpenServerSettings}
+              className="mt-1 text-[12px] text-blue-600 hover:underline hidden"
+            >
+              Change server…
+            </button>
+          </>
         )}
       </div>
     </Fragment>

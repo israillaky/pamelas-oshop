@@ -13,6 +13,9 @@ export interface ApiErrorData {
   errors?: Record<string, string[]>;
 }
 
+const DEFAULT_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000";
+
 /**
  * Read auth token from storage.
  */
@@ -46,12 +49,52 @@ export function clearAuthToken(): void {
   setAuthToken(null);
 }
 
+// Router-aware redirect
+function redirectToLogin() {
+  if (typeof window === "undefined") return;
+
+  const isElectron = navigator.userAgent.toLowerCase().includes("electron");
+
+  if (isElectron) {
+    if (window.location.hash !== "#/login") {
+      window.location.hash = "#/login";
+    }
+  } else {
+    if (window.location.pathname !== "/login") {
+      window.location.href = "/login";
+    }
+  }
+}
+
+// Axios instance
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000",
+  baseURL: DEFAULT_BASE_URL,
   withCredentials: false,
 });
 
-// Attach token to every request (if present)
+// 🔹 Allow overriding axios base URL at runtime
+export function setApiBaseUrl(url: string): void {
+  api.defaults.baseURL = url;
+}
+
+// 🔹 Try to override from Electron config at startup
+export async function initApiBaseUrlFromElectron(): Promise<void> {
+  if (typeof window === "undefined") return;
+  const electronAPI = window.electronAPI;
+
+  if (!electronAPI || typeof electronAPI.getServerUrl !== "function") return;
+
+  try {
+    const url = await electronAPI.getServerUrl();
+    if (url && typeof url === "string" && url.trim() !== "") {
+      setApiBaseUrl(url.trim());
+    }
+  } catch {
+    // ignore, stick with DEFAULT_BASE_URL
+  }
+}
+
+// Interceptors
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = getAuthToken();
@@ -65,32 +108,23 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Global 401 / 403 handling
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ApiErrorData>) => {
     const status = error.response?.status;
 
-    // 401 = not authenticated → clear token + go to login
     if (status === 401) {
       clearAuthToken();
-      if (
-        typeof window !== "undefined" &&
-        window.location.pathname !== "/login"
-      ) {
-        window.location.href = "/login";
-      }
+      redirectToLogin();
       return Promise.reject(error);
     }
 
-    // 403 = authenticated but forbidden → show modal only
     if (status === 403) {
       const payload = error.response?.data;
       const message =
         payload?.message ??
         "You do not have permission to access this resource.";
       triggerForbidden(message);
-      // DO NOT clear token or redirect
       return Promise.reject(error);
     }
 

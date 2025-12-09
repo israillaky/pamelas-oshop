@@ -1,6 +1,7 @@
 // src/providers/AuthProvider.tsx
 import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { useNavigate } from "react-router-dom";   
 import api, { getAuthToken, setAuthToken } from "../api/client";
 import {
   AuthContext,
@@ -17,6 +18,8 @@ export function AuthProvider({ children }: Props) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setTokenState] = useState<string | null>(getAuthToken());
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();  
 
   const setToken = (newToken: string | null) => {
     setTokenState(newToken);
@@ -70,15 +73,13 @@ export function AuthProvider({ children }: Props) {
     },
     [refreshUser]
   );
-
+  
   const logout = useCallback(() => {
     setToken(null);
-    setUser(null);
-
-    if (typeof window !== "undefined") {
-      window.location.href = "/login";
-    }
-  }, []);
+    setUser(null); 
+    // ✅ Use React Router navigation instead of window.location
+    navigate("/login", { replace: true });
+  }, [navigate]);
 
   useEffect(() => {
     if (token) {

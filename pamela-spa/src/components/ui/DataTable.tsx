@@ -1,7 +1,7 @@
 // src/components/ui/DataTable.tsx
 import React from "react";
-import Spinner from "./Spinner";
-import EmptyState from "./EmptyState";
+import {Spinner} from "./Spinner";
+import {EmptyState} from "./EmptyState";
 import Button from "./Button";
 
 type SortDirection = "asc" | "desc";
@@ -216,8 +216,7 @@ function DataTable<T>({
               </div>
               <div className="flex items-center gap-2">
                 <Button
-                  type="button"
-                  size="sm"
+                  type="button" 
                   variant="outline"
                   onClick={pagination.onPrev}
                   disabled={pagination.page <= 1}
@@ -225,8 +224,7 @@ function DataTable<T>({
                   Prev
                 </Button>
                 <Button
-                  type="button"
-                  size="sm"
+                  type="button" 
                   variant="outline"
                   onClick={pagination.onNext}
                   disabled={pagination.page >= pagination.lastPage}

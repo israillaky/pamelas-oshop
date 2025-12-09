@@ -5,6 +5,7 @@ import { useAuth } from "../../hooks/useAuth";
 import Button from "../../components/ui/Button";
 import { TextField } from "../../components/ui/TextField";
 import { ConnectionBanner } from "../../components/status/ConnectionBanner";
+import logo from "../../assets/icon.png";
 
 type LocationState = {
   from?: { pathname?: string };
@@ -97,7 +98,7 @@ export function LoginPage() {
     
       <div className="w-full max-w-md bg-white shadow-theme-md rounded-2xl border border-gray-100 px-8 py-10">
         <header className="mb-4 text-center">
-          <img src="/icon.png" className="h-30 w-30 sm:h-40 sm:w-40 ms-auto me-auto"/>
+          <img src={logo} className="h-30 w-30 sm:h-40 sm:w-40 ms-auto me-auto"/>
           <h1 className="mt-3 text-2xl font-semibold text-gray-900 font-outfit tracking-tight">
             Pamelas Online Shop
           </h1>

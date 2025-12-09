@@ -53,7 +53,19 @@ export const ReportsTable: React.FC<ReportsTableProps> = ({
           key: "remaining_qty",
           label: "Remaining qty",
           align: "right",
-          render: (r) => r.remaining_qty ?? 0,
+          render: (r) => {
+              const qty = r.remaining_qty ?? 0; 
+              let badgeClass = "px-2 py-0.5 rounded text-sm font-semibold inline-block "; 
+              if (qty < 5) {
+                badgeClass += "bg-red-100 text-red-700";
+              } else if (qty >= 5 && qty <= 9) {
+                badgeClass += "bg-yellow-100 text-yellow-700";
+              } else {
+                badgeClass += "bg-green-100 text-green-700";
+              }
+
+              return <span className={badgeClass}>{qty}</span>;
+            },
         },
         {
           key: "price",
@@ -106,7 +118,9 @@ export const ReportsTable: React.FC<ReportsTableProps> = ({
           key: "quantity",
           label: "Qty",
           align: "right",
-          render: (r) => r.quantity ?? 0,
+          render: (r) => (  
+            <span className="px-2 py-0.5 rounded text-sm font-semibold inline-block bg-green-100 text-green-700"> {r.quantity ?? 0}</span>
+          ), 
         },
         {
           key: "unit_price",
@@ -194,7 +208,9 @@ export const ReportsTable: React.FC<ReportsTableProps> = ({
           key: "quantity",
           label: "Qty",
           align: "right",
-          render: (r) => r.quantity ?? 0,
+          render: (r) => (  
+            <span className="px-2 py-0.5 rounded text-sm font-semibold inline-block bg-green-100 text-green-700"> {r.quantity ?? 0}</span>
+          ),
         },
         {
           key: "unit_price",
@@ -287,7 +303,9 @@ export const ReportsTable: React.FC<ReportsTableProps> = ({
         key: "quantity",
         label: "Qty",
         align: "right",
-        render: (r) => r.quantity ?? 0,
+        render: (r) => (  
+            <span className="px-2 py-0.5 rounded text-sm font-semibold inline-block bg-green-100 text-green-700"> {r.quantity ?? 0}</span>
+          ), 
       },
       {
         key: "timestamp",

@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
                 'password' => 'qwerty!2018',        // plain for now, will hash below
                 'role' => 'super_admin',
             ],
-            [
+            /*[
                 'name' => 'Admin',
                 'username' => 'admin',
                 'email' => 'admin@pamelainventory.test',
@@ -52,7 +52,7 @@ class UserSeeder extends Seeder
                 'email' => 'cashier@pamelainventory.test',
                 'password' => 'password',
                 'role' => 'cashier',
-            ],
+            ],*/
         ];
 
         foreach ($defaults as $data) {
