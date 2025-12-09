@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { useConnection } from "../../hooks/useConnection";
 
+import wampgreen from "../../assets/wamp-green.png";
+
 export function ConnectionBanner() {
   const { status, serverUrl, mode, lastChecked, checkNow } = useConnection();
   const [showHelp, setShowHelp] = useState(false);
@@ -80,7 +82,7 @@ export function ConnectionBanner() {
 
           <div className="mt-2 flex items-center justify-center">
             <img
-              src="/images/wamp-green.png"
+              src={wampgreen}
               alt="Example of WAMP icon in green state"
               className="h-30 w-auto rounded border border-amber-300 bg-white"
             />
