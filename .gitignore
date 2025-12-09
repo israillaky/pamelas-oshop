@@ -31,7 +31,6 @@ logs/
 
 # Build Artifacts
 dist/
-build/
 public/build/
 public/hot
 
