@@ -1,5 +1,5 @@
 // src/providers/ServerSettingsProvider.tsx
-import React, { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { useConnection } from "../hooks/useConnection";
 import { ServerSettingsModal } from "../components/connection/ServerSettingsModal";
 import {

@@ -52,7 +52,7 @@ export const StockOutInputBar: React.FC<Props> = ({
 }) => {
   return (
     <div className="w-full max-w-3xl">
-      <div className="flex items-stretch gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch gap-2">
         {/* Search / Scan */}
         <div className="relative flex-1">
           <Input
@@ -107,6 +107,7 @@ export const StockOutInputBar: React.FC<Props> = ({
         </div>
 
         {/* Qty */}
+        <div className="flex items-stretch gap-2">
         <Input
           ref={qtyRef}
           type="number"
@@ -121,10 +122,11 @@ export const StockOutInputBar: React.FC<Props> = ({
         <Button
           type="button"
           onClick={onSubmit}
-          className="px-6"
+          className="px-6 w-full"
         >
           Add
         </Button>
+        </div>
       </div>
 
       {/* Note */}

@@ -70,7 +70,7 @@ export const StockInTable: React.FC<Props> = ({
             <div className="text-sm font-medium text-gray-900">
               {r.product?.name ?? "—"}
             </div>
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-gray-400 hidden sm:block">
               {r.product?.sku ?? "—"} • {r.product?.barcode ?? "—"}
             </div>
           </div>
@@ -263,7 +263,7 @@ export const StockInTable: React.FC<Props> = ({
         footer={footer}                // ✅ now valid
       />
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-center   flex-col sm:justify-between mt-5 sm:mt-0">
         <div className="flex items-center gap-2 text-sm text-gray-600"> 
             <div className="text-sm text-gray-500">
               Page {page} of {lastPage} • {totalPage} records

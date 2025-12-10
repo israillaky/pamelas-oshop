@@ -67,7 +67,7 @@ export const StockOutPage: React.FC = () => {
 
   return (
     <AppLayout title="Stock Out">
-      <div className="space-y-4 p-4">
+      <div className="space-y-4 p-sm-4">
         <ConnectionBanner />
 
         {/* Toast */}
@@ -151,7 +151,7 @@ export const StockOutPage: React.FC = () => {
 
         {/* Pagination */}
         {meta && (
-          <div className="flex justify-between items-center">
+          <div className="flex justify-center items-center flex-col sm:justify-between mt-5 sm:mt-0">
             <div className="text-sm text-gray-500">
               Page {meta.current_page} of {meta.last_page} • {meta.total} records
             </div>

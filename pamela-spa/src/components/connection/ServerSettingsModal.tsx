@@ -83,7 +83,7 @@ export const ServerSettingsModal: React.FC<ServerSettingsModalProps> = ({
           Enter the base URL of your Pamela API, for example:
           <br />
           <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">
-            http://192.168.1.100:8000/api/v1
+            http://192.168.1.100
           </code>
         </p>
 
@@ -91,7 +91,7 @@ export const ServerSettingsModal: React.FC<ServerSettingsModalProps> = ({
           label="Server URL"
           value={value}
           onChange={(val) => setValue(val)}   // ✅ treat it as string
-          placeholder="http://127.0.0.1:8000/api/v1"
+          placeholder="http://127.0.0.1:8000"
         />
 
         {error && <div className="text-sm text-red-600">{error}</div>}

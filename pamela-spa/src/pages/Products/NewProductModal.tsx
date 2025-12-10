@@ -1,5 +1,5 @@
 // src/pages/Products/NewProductModal.tsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import apiClient from "../../api/client";
 import Modal from "../../components/ui/Modal";
 import Button from "../../components/ui/Button";
@@ -58,33 +58,50 @@ export const NewProductModal: React.FC<NewProductModalProps> = ({
     setError(null);
     setSuccess(null);
   }, [open]);
+ 
+  const [childOptions, setChildOptions] = useState<ChildCategoryOption[]>([]);
+  const [childLoading, setChildLoading] = useState(false);
 
-  // Selected category based on string ID
-  const selectedCategory = useMemo(() => {
-    if (!Array.isArray(categories)) return undefined;
-    if (!categoryId) return undefined;
-
-    return categories.find((c) => String(c.id) === categoryId);
-  }, [categories, categoryId]);
-
-  // Child options: supports both childCategories and child_categories
-  const childOptions: ChildCategoryOption[] = useMemo(
-    () =>
-      selectedCategory?.childCategories ||
-      selectedCategory?.child_categories ||
-      [],
-    [selectedCategory]
-  );
-
-  // If current child_category_id not inside selected category, clear it
   useEffect(() => {
-    if (
-      childCategoryId &&
-      !childOptions.some((cc) => String(cc.id) === childCategoryId)
-    ) {
+  if (!categoryId) {
+    setChildOptions([]);
+    setChildCategoryId("");
+    return;
+  }
+
+  const fetchChildren = async () => {
+    setChildLoading(true);
+    try {
+      const res = await apiClient.get(
+        `/api/v1/categories/${categoryId}/children`
+      );
+
+      const payload = res.data as any;
+
+      const children: ChildCategoryOption[] = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.data)
+        ? payload.data
+        : [];
+
+      setChildOptions(children);
+
+      // If current child is not in this category, clear it
+      if (!children.some((cc) => String(cc.id) === childCategoryId)) {
+        setChildCategoryId("");
+      }
+    } catch {
+      setChildOptions([]);
       setChildCategoryId("");
+    } finally {
+      setChildLoading(false);
     }
-  }, [childOptions, childCategoryId]);
+  };
+
+  void fetchChildren();
+}, [categoryId, childCategoryId]);
+
+ 
 
   if (!open) return null;
 
@@ -254,16 +271,19 @@ export const NewProductModal: React.FC<NewProductModalProps> = ({
             value={childCategoryId}
             onChange={setChildCategoryId}
             placeholder={
-              categoryId ? "Select child category (optional)" : "None"
+              !categoryId
+                ? "Select category first"
+                : childLoading
+                ? "Loading child categories..."
+                : childOptions.length === 0
+                ? "No child categories"
+                : "Select child category (optional)"
             }
-            options={
-              categoryId
-                ? childOptions.map((cc) => ({
-                    value: String(cc.id),
-                    label: cc.name,
-                  }))
-                : []
-            }
+            options={childOptions.map((cc) => ({
+              value: String(cc.id),
+              label: cc.name,
+            }))}
+            disabled={!categoryId || childLoading || childOptions.length === 0}
           />
         </div>
 

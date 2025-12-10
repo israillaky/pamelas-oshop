@@ -55,7 +55,7 @@ export const StockOutTable: React.FC<Props> = ({
             <div className="font-medium text-gray-900">
               {r.product?.name ?? "—"}
             </div>
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-gray-400 hidden sm:block">
               {r.product?.sku} • {r.product?.barcode}
             </div>
           </div>

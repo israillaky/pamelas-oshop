@@ -11,12 +11,7 @@ import { useReportsPage } from "./useReportsPage";
 import { ReportsFilterBar } from "./ReportsFilterBar";
 import { ReportsSummaryCards } from "./ReportsSummaryCards";
 import { ReportsTable } from "./ReportsTable";
-import type { ReportTabKey } from "./types";
-
-import {
-  FolderArrowDownIcon,
-  DocumentArrowDownIcon 
-} from "@heroicons/react/24/outline";
+import type { ReportTabKey } from "./types"; 
 
 const tabs: { key: ReportTabKey; label: string }[] = [
   { key: "stock_in", label: "Stock In" },
@@ -189,7 +184,7 @@ export const ReportsPage: React.FC = () => {
         <div className="space-y-3">
           {/* Show entries (no sort) */}
           <div className="flex flex-row flex-wrap gap-2 items-start justify-start sm:justify-between sm:items-center">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-gray-600 order-1 sm:order-0">
               <span>Show</span>
               <select
                 className="h-10 w-[60px] rounded-md border border-gray-300 bg-white px-2 text-sm"
@@ -203,17 +198,13 @@ export const ReportsPage: React.FC = () => {
               <span>entries</span>
             </div> 
              {/* Export bar placeholder (API version – you can wire CSV/PDF later) */}
-            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
-            <span className="mr-2 text-[11px] uppercase tracking-wide">
-                Exports
-            </span>
-            <Button type="button" variant="secondary" className="hover:text-dark-900 shadow-theme-xs relative flex h-11 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 whitespace-nowrap text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-700    " onClick={handleExportCsv}>
-            Export CSV <FolderArrowDownIcon className="h-5 w-5 shrink-0" />
-             
-            </Button>
-            <Button type="button" variant="secondary" className="hover:text-dark-900 shadow-theme-xs relative flex h-11 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 whitespace-nowrap text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-700    " onClick={handleExportPdf}>
-                Export PDF <DocumentArrowDownIcon className="h-5 w-5 shrink-0"  />
-            </Button> 
+            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 order-0 sm:order-1"> 
+                <Button type="button" variant="secondary" className="hover:text-dark-900 shadow-theme-xs relative flex h-11 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 whitespace-nowrap text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-700    " onClick={handleExportCsv}>
+                Export CSV  
+                </Button>
+                <Button type="button" variant="secondary" className="hover:text-dark-900 shadow-theme-xs relative flex h-11 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 whitespace-nowrap text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-700    " onClick={handleExportPdf}>
+                    Export PDF 
+                </Button> 
             </div>
           </div>
         <section className="rounded-lg border border-gray-100 bg-white px-2 py-4 shadow-sm">
@@ -227,7 +218,7 @@ export const ReportsPage: React.FC = () => {
             loading={loading}
           />
 
-          <div className="flex items-center justify-between"> 
+          <div className="flex items-center justify-center flex-col mt-5 sm:mt-0 sm:justify-between"> 
 
             {rowsPage && (
               <div className="text-sm text-gray-500">

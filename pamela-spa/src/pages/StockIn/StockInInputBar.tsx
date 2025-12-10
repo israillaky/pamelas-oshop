@@ -54,7 +54,7 @@ export const StockInInputBar: React.FC<Props> = ({
 }) => {
   return (
     <div className="w-full max-w-3xl space-y-2">
-      <div className="flex items-stretch gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch gap-2">
         {/* Search / Scan input */}
         <div className="relative flex-1">
           <Input
@@ -62,7 +62,7 @@ export const StockInInputBar: React.FC<Props> = ({
             value={query}
             onChange={onSearchChange}
             onKeyDown={onSearchKeyDown}
-            placeholder="Scan barcode or type Product Name..."
+            placeholder="Scan barcode or type Product Name..." 
             autoFocus
           />
 
@@ -108,26 +108,27 @@ export const StockInInputBar: React.FC<Props> = ({
             </div>
           )}
         </div>
+        <div className="flex items-stretch gap-2">
+          {/* Qty */}
+          <Input
+            ref={qtyRef}
+            type="number"
+            value={String(form.quantity)}
+            onChange={onQtyChange}
+            onKeyDown={onQtyKeyDown}
+            min={1}
+            className="w-15   text-center"
+          />
 
-        {/* Qty */}
-        <Input
-          ref={qtyRef}
-          type="number"
-          value={String(form.quantity)}
-          onChange={onQtyChange}
-          onKeyDown={onQtyKeyDown}
-          min={1}
-          className="w-24 min-w-[7.5rem] text-center"
-        />
-
-        {/* Add button */}
-        <Button
-          type="button"
-          onClick={onSubmitAdd}
-          className="px-6"
-        >
-          Add
-        </Button>
+          {/* Add button */}
+          <Button
+            type="button"
+            onClick={onSubmitAdd}
+            className="px-6 w-full"
+          >
+            Add
+          </Button>
+        </div>
       </div>
 
       {/* Optional Note */}

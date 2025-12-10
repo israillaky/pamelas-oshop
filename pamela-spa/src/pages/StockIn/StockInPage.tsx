@@ -67,7 +67,7 @@ export default function StockInPage() {
 
   return (
     <AppLayout title="Stock In">
-      <div className="space-y-4 p-4">
+      <div className="space-y-4 p-sm-4 ">
       
         <ConnectionBanner />
 
