@@ -5,6 +5,7 @@ import {
   ForbiddenContext,
   type ForbiddenContextValue,
 } from "./ForbiddenContextBase";
+import { ForbiddenDialog } from "../components/modals/ForbiddenDialog";
 
 const DEFAULT_FORBIDDEN_MESSAGE =
   "You do not have permission to access this resource.";
@@ -19,33 +20,43 @@ export const ForbiddenProvider: React.FC<ForbiddenProviderProps> = ({
   const [forbiddenOpen, setForbiddenOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  const handleTrigger = useCallback((msg?: string) => {
-    setMessage(msg || DEFAULT_FORBIDDEN_MESSAGE);
-    setForbiddenOpen(true);
-  }, []);
-
   const clearForbidden = useCallback(() => {
     setForbiddenOpen(false);
     setMessage(null);
   }, []);
 
-  // Wire this provider into the global trigger bus
+  const showForbidden = useCallback((msg?: string) => {
+    setMessage(msg || DEFAULT_FORBIDDEN_MESSAGE);
+    setForbiddenOpen(true);
+  }, []);
+
+  // 🔴 THIS is what connects triggerForbidden → provider
   useEffect(() => {
-    registerForbiddenTrigger(handleTrigger);
+    console.log("[ForbiddenProvider] registering forbidden trigger"); // debug
+    registerForbiddenTrigger(showForbidden);
     return () => {
+      console.log("[ForbiddenProvider] unregistering forbidden trigger");
       registerForbiddenTrigger(null);
     };
-  }, [handleTrigger]);
+  }, [showForbidden]);
 
   const value: ForbiddenContextValue = {
     forbiddenOpen,
     message,
     clearForbidden,
+    showForbidden,
   };
 
   return (
     <ForbiddenContext.Provider value={value}>
       {children}
+
+      {/* Global 403 modal */}
+      <ForbiddenDialog
+        open={forbiddenOpen}
+        message={message}
+        onClose={clearForbidden}
+      />
     </ForbiddenContext.Provider>
   );
 };

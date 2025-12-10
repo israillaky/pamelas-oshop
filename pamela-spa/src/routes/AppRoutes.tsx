@@ -11,6 +11,7 @@ import UsersPage from "../pages/Users/UsersPage";
 import AuditLogsPage from "../pages/AuditLogs/AuditLogsPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { RoleProtectedRoute } from "./RoleProtectedRoute"; 
+import { NotFoundPage } from "../pages/NotFoundPage";
 
 const AppRoutes = () => (
   <Routes>
@@ -49,6 +50,8 @@ const AppRoutes = () => (
       >
         <Route path="/audit-logs" element={<AuditLogsPage />} />
       </Route>
+
+       <Route path="*" element={<NotFoundPage />} />
     </Route>
   </Routes>
 );

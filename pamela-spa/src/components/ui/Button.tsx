@@ -33,6 +33,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
+      
       type={type ?? "button"}
       {...rest}
       disabled={isDisabled}

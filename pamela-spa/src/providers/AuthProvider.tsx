@@ -79,7 +79,7 @@ export function AuthProvider({ children }: Props) {
     setUser(null); 
     // ✅ Use React Router navigation instead of window.location
     navigate("/login", { replace: true });
-  }, [navigate]);
+  }, [navigate, setToken, setUser]);
 
   useEffect(() => {
     if (token) {

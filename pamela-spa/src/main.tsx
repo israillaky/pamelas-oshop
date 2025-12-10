@@ -7,21 +7,18 @@ import ErrorBoundary from "./components/ErrorBoundary";
 
 import AuthProvider from "./providers/AuthProvider";
 import ConnectionProvider from "./providers/ConnectionProvider";
-import { ForbiddenProvider } from "./contexts/ForbiddenContext";
-
+import ForbiddenProvider from "./contexts/ForbiddenContext"; // ⬅ here
+import { ServerSettingsProvider } from "./providers/ServerSettingsProvider";
 import { initApiBaseUrlFromElectron } from "./api/client";
 
 import "./index.css";
 import "react-datepicker/dist/react-datepicker.css";
 
 async function bootstrap() {
-  const isElectron = navigator.userAgent.toLowerCase().includes("electron");
+  const isElectron = Boolean(window.electronAPI);
   const Router = isElectron ? HashRouter : BrowserRouter;
+  const connectionMode: "desktop" | "web" = isElectron ? "desktop" : "web";
 
-  // Optional: if your ConnectionProvider expects a mode, keep this mapping.
-  const connectionMode = isElectron ? "desktop" : "web";
-
-  // Try to override axios baseURL from Electron config (no-op in web)
   await initApiBaseUrlFromElectron();
 
   ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
@@ -31,7 +28,9 @@ async function bootstrap() {
           <ConnectionProvider mode={connectionMode}>
             <AuthProvider>
               <ForbiddenProvider>
-                <App />
+                <ServerSettingsProvider>
+                  <App />
+                </ServerSettingsProvider>
               </ForbiddenProvider>
             </AuthProvider>
           </ConnectionProvider>

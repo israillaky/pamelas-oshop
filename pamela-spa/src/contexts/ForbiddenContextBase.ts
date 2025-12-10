@@ -5,8 +5,8 @@ export type ForbiddenContextValue = {
   forbiddenOpen: boolean;
   message: string | null;
   clearForbidden: () => void;
+  showForbidden: (message?: string) => void;
 };
 
-export const ForbiddenContext = createContext<ForbiddenContextValue | undefined>(
-  undefined
-);
+export const ForbiddenContext =
+  createContext<ForbiddenContextValue | undefined>(undefined);

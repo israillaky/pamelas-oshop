@@ -3,6 +3,8 @@ import { Fragment } from "react";
 import { NavLink } from "react-router-dom";
 import type { ComponentType, SVGProps } from "react";
 import type { ConnectionStatusValue } from "../../hooks/useConnectionStatus";
+import { useServerSettings } from "../../contexts/ServerSettingsContext";
+
 import {
   HomeIcon,
   Squares2X2Icon,
@@ -30,8 +32,6 @@ type NavItem = {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   allowedRoles: UserRole[];
 };
-
-
 
 const navItems: NavItem[] = [
   {
@@ -82,7 +82,7 @@ const navItems: NavItem[] = [
     to: "/reports",
     label: "Reports",
     icon: ChartBarIcon,
-    allowedRoles: ["super_admin", "admin","staff"],
+    allowedRoles: ["super_admin", "admin", "staff"],
   },
   {
     to: "/users",
@@ -107,7 +107,6 @@ type SidebarProps = {
   onCloseMobile: () => void;
   status: ConnectionStatusValue;
   serverUrl: string;
-  onOpenServerSettings?: () => void; // 🔹 NEW
 };
 
 export const Sidebar = ({
@@ -116,10 +115,11 @@ export const Sidebar = ({
   onCloseMobile,
   status,
   serverUrl,
-  onOpenServerSettings
 }: SidebarProps) => {
   const { user } = useAuth();
   const role = user?.role as UserRole | undefined;
+
+  const { openServerSettings } = useServerSettings();
 
   const visibleItems =
     role == null
@@ -205,7 +205,7 @@ export const Sidebar = ({
             </div>
             <button
               type="button"
-              onClick={onOpenServerSettings}
+              onClick={openServerSettings}
               className="mt-1 text-[12px] text-blue-600 hover:underline hidden"
             >
               Change server…

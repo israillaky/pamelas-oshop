@@ -5,6 +5,7 @@ import { useConnection } from "./hooks/useConnection";
 import { FullScreenLoader } from "./components/layout/FullScreenLoader";
 import AppRoutes from "./routes/AppRoutes"; // whatever you call your routing
 
+
 export const App: React.FC = () => {
   const { loading: authLoading } = useAuth();
   const { status: connectionStatus } = useConnection();

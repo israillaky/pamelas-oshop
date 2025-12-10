@@ -78,16 +78,17 @@ export const AppLayout = ({
     connection.setServerUrlFromSettings(newUrl);
   };
 
+  
+
   return (
-    <div className="min-h-screen bg-gray-100 font-outfit text-gray-800">
+    <div className="min-h-screen bg-gray-100 font-outfit text-gray-800 border-t border-gray-200">
       <div className="flex min-h-screen">
         <Sidebar
           collapsed={sidebarCollapsed}
           isMobileOpen={mobileSidebarOpen}
           onCloseMobile={() => setMobileSidebarOpen(false)}
           status={connection.status}
-          serverUrl={connection.serverUrl}          
-          onOpenServerSettings={() => setServerModalOpen(true)}
+          serverUrl={connection.serverUrl}
         />
 
         <div className="flex flex-1 flex-col">
