@@ -151,7 +151,7 @@ export const StockOutPage: React.FC = () => {
 
         {/* Pagination */}
         {meta && (
-          <div className="flex justify-center items-center flex-col sm:justify-between mt-5 sm:mt-0">
+          <div className="flex justify-center items-center flex-col sm:flex-row sm:justify-between mt-5 sm:mt-0">
             <div className="text-sm text-gray-500">
               Page {meta.current_page} of {meta.last_page} • {meta.total} records
             </div>

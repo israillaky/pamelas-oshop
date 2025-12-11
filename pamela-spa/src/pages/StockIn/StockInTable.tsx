@@ -263,7 +263,7 @@ export const StockInTable: React.FC<Props> = ({
         footer={footer}                // ✅ now valid
       />
 
-      <div className="flex items-center justify-center   flex-col sm:justify-between mt-5 sm:mt-0">
+      <div className="flex items-center justify-center   flex-col sm:flex-row sm:justify-between mt-5 sm:mt-0">
         <div className="flex items-center gap-2 text-sm text-gray-600"> 
             <div className="text-sm text-gray-500">
               Page {page} of {lastPage} • {totalPage} records

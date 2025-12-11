@@ -61,8 +61,12 @@ export const NewProductModal: React.FC<NewProductModalProps> = ({
  
   const [childOptions, setChildOptions] = useState<ChildCategoryOption[]>([]);
   const [childLoading, setChildLoading] = useState(false);
+ 
+type ChildCategoryResponse =
+  | ChildCategoryOption[]
+  | { data: ChildCategoryOption[] };
 
-  useEffect(() => {
+useEffect(() => {
   if (!categoryId) {
     setChildOptions([]);
     setChildCategoryId("");
@@ -72,17 +76,21 @@ export const NewProductModal: React.FC<NewProductModalProps> = ({
   const fetchChildren = async () => {
     setChildLoading(true);
     try {
-      const res = await apiClient.get(
+      const res = await apiClient.get<ChildCategoryResponse>(
         `/api/v1/categories/${categoryId}/children`
       );
 
-      const payload = res.data as any;
+      let children: ChildCategoryOption[];
 
-      const children: ChildCategoryOption[] = Array.isArray(payload)
-        ? payload
-        : Array.isArray(payload?.data)
-        ? payload.data
-        : [];
+      if (Array.isArray(res.data)) {
+        // API returned a bare array: [ ... ]
+        children = res.data;
+      } else if (Array.isArray(res.data.data)) {
+        // API returned { data: [ ... ] }
+        children = res.data.data;
+      } else {
+        children = [];
+      }
 
       setChildOptions(children);
 
@@ -100,6 +108,7 @@ export const NewProductModal: React.FC<NewProductModalProps> = ({
 
   void fetchChildren();
 }, [categoryId, childCategoryId]);
+
 
  
 

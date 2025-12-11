@@ -18,7 +18,7 @@ export function ConnectionProvider({ children, mode = "web" }: Props) {
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
 
   const serverUrl =
-    import.meta.env.VITE_API_BASE_URL ?? "http://localhost";
+    import.meta.env.VITE_API_BASE_URL ?? "/api";
 
   const runCheck = useCallback(async () => {
     try {

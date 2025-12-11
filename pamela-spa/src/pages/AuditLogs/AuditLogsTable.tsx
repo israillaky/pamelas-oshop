@@ -155,7 +155,7 @@ export const AuditLogsTable: React.FC<Props> = ({
       </div>
 
       {/* Footer with pagination info */}  
-      <div className="flex flex-col gap-2 border-t border-gray-100 px-3 py-3 text-sm text-gray-500 sm:justify-between mt-5 sm:mt-0">
+      <div className="flex flex-col gap-2 border-t border-gray-100 px-3 py-3 text-sm text-gray-500 sm:flex-row sm:justify-between mt-5 sm:mt-0">
         <div>
           {from !== null && to !== null ? (
             <span>

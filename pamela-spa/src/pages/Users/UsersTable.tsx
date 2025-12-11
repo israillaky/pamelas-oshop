@@ -181,7 +181,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
         rows={visibleItems}
         emptyText="No Stock Out yet."
       />
-         <div className="flex items-center justify-center flex-col sm:justify-between"> 
+         <div className="flex items-center justify-center flex-col sm:flex-row sm:justify-between"> 
             <div className="text-smtext-gray-500">
                 Showing {pagination.from} to {pagination.to} of {pagination.total} users
             </div> 

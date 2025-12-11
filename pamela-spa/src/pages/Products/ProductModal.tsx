@@ -1,5 +1,5 @@
 // src/pages/Products/ProductModal.tsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import apiClient from "../../api/client";
 import Modal from "../../components/ui/Modal";
 import Button from "../../components/ui/Button";
@@ -75,23 +75,51 @@ export const ProductModal: React.FC<ProductModalProps> = ({
     setError(null);
   }, [product]);
 
-  // Selected category & child options
-  const selectedCategory = useMemo(() => {
-    if (!Array.isArray(categories)) return undefined;
+ // under other useState hooks
+const [childOptions, setChildOptions] = useState<ChildCategoryOption[]>([]);
+const [childLoading, setChildLoading] = useState(false);
 
-    const id = Number(categoryId);
-    if (!id) return undefined;
+// Define the shape returned by your API 
+interface ChildCategoryApiResponse {
+  data: ChildCategoryOption[]; // your API always returns { data: [...] }
+}
 
-    return categories.find((c) => c.id === id);
-  }, [categories, categoryId]);
+useEffect(() => {
+  if (!categoryId) {
+    setChildOptions([]);
+    setChildCategoryId("");
+    return;
+  }
 
-  const childOptions: ChildCategoryOption[] = useMemo(
-    () =>
-      selectedCategory?.childCategories ||
-      selectedCategory?.child_categories ||
-      [],
-    [selectedCategory]
-  );
+  const fetchChildren = async () => {
+    setChildLoading(true);
+    try {
+      const res = await apiClient.get<ChildCategoryApiResponse>(
+        `/api/v1/categories/${categoryId}/children`
+      );
+
+      // Safe narrowing based on expected API structure
+      const children = Array.isArray(res.data?.data)
+        ? res.data.data
+        : [];
+
+      setChildOptions(children);
+
+      // keep current child only if it belongs to this category
+      if (!children.some((cc) => String(cc.id) === childCategoryId)) {
+        setChildCategoryId("");
+      }
+    } catch {
+      setChildOptions([]);
+      setChildCategoryId("");
+    } finally {
+      setChildLoading(false);
+    }
+  };
+
+  void fetchChildren();
+}, [categoryId, childCategoryId]);
+
 
   // If child_category_id no longer belongs to selected category, clear it
   useEffect(() => {
@@ -242,19 +270,25 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           
           {/* Child category (optional) */}
           <Select
-            label="Child Category"
+            label="Child Category (optional)"
             value={childCategoryId}
             onChange={setChildCategoryId}
-            placeholder={categoryId ? "Select child category (optional)" : "None"}
-            options={
-              categoryId
-                ? childOptions.map((cc) => ({
-                    value: cc.id,
-                    label: cc.name,
-                  }))
-                : []
+            placeholder={
+              !categoryId
+                ? "Select category first"
+                : childLoading
+                ? "Loading child categories..."
+                : childOptions.length === 0
+                ? "No child categories"
+                : "Select child category (optional)"
             }
-          />    
+            options={childOptions.map((cc) => ({
+              value: String(cc.id),
+              label: cc.name,
+            }))}
+            disabled={!categoryId || childLoading || childOptions.length === 0}
+          />
+
 
           {/* Buttons */}
           <div className="flex justify-end gap-2 pt-2">
