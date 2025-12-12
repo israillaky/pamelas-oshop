@@ -77,28 +77,28 @@ class ChildCategoryController extends Controller
     }
 
     public function indexByCategory(Request $request, int $categoryId)
-{
-    if (!$request->user()) {
-        return response()->json(['message' => 'Unauthenticated.'], 401);
-    }
+    {
+        if (!$request->user()) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
 
-    $perPage = (int) $request->query('per_page', 10);
-    $allowedSizes = [10, 15, 25];
-    if (!in_array($perPage, $allowedSizes, true)) {
-        $perPage = 10;
-    }
+        $perPage = (int) $request->query('per_page', 10);
+        $allowedSizes = [10, 15, 25];
+        if (!in_array($perPage, $allowedSizes, true)) {
+            $perPage = 10;
+        }
 
-    try {
-        $children = ChildCategory::where('category_id', $categoryId)
-            ->orderBy('name')
-            ->paginate($perPage);
+        try {
+            $children = ChildCategory::where('category_id', $categoryId)
+                ->orderBy('name')
+                ->paginate($perPage);
 
-        return response()->json($children);
-    } catch (\Throwable $e) {
-        report($e);
-        return response()->json(['message' => 'Unable to fetch child categories.'], 500);
+            return response()->json($children);
+        } catch (\Throwable $e) {
+            report($e);
+            return response()->json(['message' => 'Unable to fetch child categories.'], 500);
+        }
     }
-}
 
 
 

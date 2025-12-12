@@ -51,22 +51,25 @@ class CategoryController extends Controller
         if (!in_array($perPage, $allowedSizes, true)) {
             $perPage = 10;
         }
+        try {
+            // Allowed sort direction
+            $sortDir = strtolower($request->query('sort_dir', 'desc'));
+            if (!in_array($sortDir, ['asc', 'desc'], true)) {
+                $sortDir = 'desc';
+            }
 
-        // Allowed sort direction
-        $sortDir = strtolower($request->query('sort_dir', 'desc'));
-        if (!in_array($sortDir, ['asc', 'desc'], true)) {
-            $sortDir = 'desc';
+            $categories = Category::query()
+                ->withCount('childCategories')   // <= this line is key
+                ->when($search, fn($q) =>
+                    $q->where('name', 'like', "%{$search}%")
+                )
+                ->orderBy('id', $sortDir)
+                ->paginate($perPage);
+                return response()->json($categories);
+        } catch (Throwable $e) {
+            report($e);
+            return response()->json(['message' => 'Unable to fetch categories.'], 500);
         }
-
-        $categories = Category::query()
-            ->withCount('childCategories')   // <= this line is key
-            ->when($search, fn($q) =>
-                $q->where('name', 'like', "%{$search}%")
-            )
-            ->orderBy('id', $sortDir)
-            ->paginate($perPage);
-
-        return response()->json($categories);
     }
 
     /**

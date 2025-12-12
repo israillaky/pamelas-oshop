@@ -75,15 +75,16 @@ class ProductController extends Controller
             return $response;
         }
 
+        // Page size
+        $allowedPerPage = [10, 15, 25];
+        $perPage = (int) $request->query('per_page', 10);
+        if (!in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 10;
+        }
+
         try {
             $filters = $request->only(['search']);
 
-            // Page size
-            $allowedPerPage = [10, 15, 25];
-            $perPage = (int) $request->query('per_page', 10);
-            if (!in_array($perPage, $allowedPerPage, true)) {
-                $perPage = 10;
-            }
 
             // Sort direction
             $sortDir = strtolower($request->query('sort_dir', 'desc'));
