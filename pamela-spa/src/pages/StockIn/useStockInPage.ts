@@ -16,7 +16,6 @@ import {
 import { playBeep } from "../../utils/audio";
 import type {
   StockInRow,
-  StockInListResponse,
   StockInAddFormData,
   ProductSuggestion,
   StockInTotals,
@@ -186,18 +185,29 @@ export function useStockInPage() {
     setError(null);
 
     try {
-      const res = await api.get<StockInListResponse>("/api/v1/stock-in", {
+      const res = await api.get<unknown>("/api/v1/stock-in", {
         params: { page, per_page: perPage },
       });
 
-      const body = res.data;
-      setRows(body.data);
-      setMeta({
-        current_page: body.current_page,
-        last_page: body.last_page,
-        per_page: body.per_page,
-        total: body.total,
-      });
+      const body = res.data as any;
+      // Support both legacy paginator shape and new `{ rows, totals }` payload
+      if (body && body.rows && body.rows.data) {
+        setRows(body.rows.data as StockInRow[]);
+        setMeta({
+          current_page: Number(body.rows.current_page ?? 1),
+          last_page: Number(body.rows.last_page ?? 1),
+          per_page: Number(body.rows.per_page ?? perPage),
+          total: Number(body.rows.total ?? 0),
+        });
+      } else {
+        setRows((body?.data ?? []) as StockInRow[]);
+        setMeta({
+          current_page: Number(body?.current_page ?? 1),
+          last_page: Number(body?.last_page ?? 1),
+          per_page: Number(body?.per_page ?? perPage),
+          total: Number(body?.total ?? 0),
+        });
+      }
     } catch (err) {
       const apiErr = err as AxiosError<ApiError>;
       const message = extractErrorMessage(apiErr);

@@ -218,7 +218,7 @@ export const ReportsPage: React.FC = () => {
             loading={loading}
           />
 
-          <div className="flex items-center justify-center flex-col mt-5 sm:mt-0 sm:justify-between"> 
+          <div className="flex items-center justify-center flex-col mt-5 sm:flex-row sm:mt-0 sm:justify-between"> 
 
             {rowsPage && (
               <div className="text-sm text-gray-500">

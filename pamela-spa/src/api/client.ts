@@ -13,8 +13,21 @@ export interface ApiErrorData {
   errors?: Record<string, string[]>;
 }
 
+// Optional Electron bridge type
+type ElectronAPI = {
+  getServerUrl?: () => Promise<string | null>;
+};
+
+type ElectronWindow = Window & {
+  electronAPI?: ElectronAPI;
+};
+
+// Normalize base URL: strip trailing slashes if env is set, fallback to /server
+const envBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const DEFAULT_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "/server";
+  (typeof envBaseUrl === "string"
+    ? envBaseUrl.replace(/\/+$/, "")
+    : "/server") || "/server";
 
 /**
  * Read auth token from storage.
@@ -70,23 +83,31 @@ function redirectToLogin() {
 const api = axios.create({
   baseURL: DEFAULT_BASE_URL,
   withCredentials: false,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
 });
 
-// 🔹 Allow overriding axios base URL at runtime
+// Allow overriding axios base URL at runtime
 export function setApiBaseUrl(url: string): void {
-  api.defaults.baseURL = url;
+  const trimmed = url.trim().replace(/\/+$/, "");
+  if (!trimmed) return;
+  api.defaults.baseURL = trimmed;
 }
 
-// 🔹 Try to override from Electron config at startup
+// Try to override from Electron config at startup
 export async function initApiBaseUrlFromElectron(): Promise<void> {
   if (typeof window === "undefined") return;
-  const electronAPI = window.electronAPI;
+
+  const electronWindow = window as ElectronWindow;
+  const electronAPI = electronWindow.electronAPI;
 
   if (!electronAPI || typeof electronAPI.getServerUrl !== "function") return;
 
   try {
     const url = await electronAPI.getServerUrl();
-    if (url && typeof url === "string" && url.trim() !== "") {
+    if (typeof url === "string" && url.trim() !== "") {
       setApiBaseUrl(url.trim());
     }
   } catch {
