@@ -57,3 +57,21 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Pamela API Notes
+
+### Rate Limiting (LAN-friendly)
+
+To improve responsiveness on local LAN, global API throttling is disabled for authenticated `v1` routes, while the login endpoint remains protected:
+
+- Login: throttled with `throttle:10,1` (10 requests/min per IP)
+- Authenticated routes: group uses `withoutMiddleware('throttle:api')`
+- Health: `/api/v1/health` is public and unthrottled
+
+You can adjust these in `routes/api.php`.
+
+### Environment
+
+- Ensure `DB_CONNECTION=mysql` and run migrations.
+- Sanctum must have `personal_access_tokens` table.
+- For SPA dev, the frontend can proxy `/server` to your backend using `VITE_DEV_PROXY_TARGET`.

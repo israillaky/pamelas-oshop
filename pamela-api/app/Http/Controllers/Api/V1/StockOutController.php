@@ -9,6 +9,7 @@ use App\Models\ProductPriceSnapshot;
 use App\Traits\LogActivityTrait;
 use Illuminate\Http\Request;
 use Throwable;
+use Illuminate\Support\Facades\DB;
 
 class StockOutController extends Controller
 {
@@ -49,7 +50,11 @@ class StockOutController extends Controller
         if ($response = $this->ensureAllowed($request)) {
             return $response;
         }
-
+        $allowedPerPage = [10, 15, 25];
+        $perPage = (int) $request->query('per_page', 10);
+        if (! in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 10;
+        }
         try {
             $filters = $request->only(['search', 'product_id', 'date_from', 'date_to']);
 
@@ -57,13 +62,6 @@ class StockOutController extends Controller
             if (empty($filters['date_from']) && empty($filters['date_to'])) {
                 $filters['date_to']   = now()->toDateString();              // today
                 $filters['date_from'] = now()->subDays(30)->toDateString(); // 30 days ago
-            }
-
-            // ✅ Pagination + sort controls
-            $allowedPerPage = [10, 15, 25];
-            $perPage = (int) $request->query('per_page', 10);
-            if (! in_array($perPage, $allowedPerPage, true)) {
-                $perPage = 10;
             }
 
             $sortDir = strtolower($request->query('sort_dir', 'desc'));
@@ -95,50 +93,51 @@ class StockOutController extends Controller
                 ->orderBy('created_at', $sortDir)
                 ->paginate($perPage);
 
-            // ✅ Full list for the selected range (no pagination) → compute rangeTotals
-            $allForTotals = (clone $baseQuery)->get();
+            // ✅ Compute totals via a clean Query Builder instance to avoid Eloquent eager-load joins
+            $totalsQuery = DB::table('stock_outs')
+                ->leftJoin('product_price_snapshots as pps', 'pps.stock_out_id', '=', 'stock_outs.id')
+                ->leftJoin('products as p', 'p.id', '=', 'stock_outs.product_id');
 
-            $saleSubtotal    = 0.0;
-            $regularSubtotal = 0.0;
-            $totalQty        = 0;
-
-            foreach ($allForTotals as $r) {
-                $qty = (int) $r->quantity;
-                if ($qty <= 0) {
-                    continue;
-                }
-
-                $totalQty += $qty;
-
-                // Same logic as Inertia version (priceSnapshot → product->price)
-                $unitPrice = (float) (
-                    optional($r->priceSnapshot)->unit_price
-                    ?? optional($r->product)->price
-                    ?? 0
-                );
-
-                $unitSaleValue = (
-                    optional($r->priceSnapshot)->unit_sales_price
-                    ?? optional($r->product)->sales_price
-                );
-                $unitSales = $unitSaleValue !== null ? (float) $unitSaleValue : null;
-
-                $hasSale = $unitSales !== null
-                    && $unitSales > 0
-                    && $unitSales !== $unitPrice;
-
-                if ($hasSale) {
-                    $saleSubtotal += $qty * $unitSales;
-                } else {
-                    $regularSubtotal += $qty * $unitPrice;
-                }
+            // Apply filters equivalent to $baseQuery
+            if (!empty($filters['search'])) {
+                $search = $filters['search'];
+                $totalsQuery->where(function ($q) use ($search) {
+                    $q->where('p.name', 'like', "%{$search}%")
+                      ->orWhere('p.sku', 'like', "%{$search}%")
+                      ->orWhere('p.barcode', 'like', "%{$search}%");
+                });
+            }
+            if (!empty($filters['product_id'])) {
+                $totalsQuery->where('stock_outs.product_id', $filters['product_id']);
+            }
+            if (!empty($filters['date_from'])) {
+                $totalsQuery->whereDate('stock_outs.created_at', '>=', $filters['date_from']);
+            }
+            if (!empty($filters['date_to'])) {
+                $totalsQuery->whereDate('stock_outs.created_at', '<=', $filters['date_to']);
             }
 
+            $totalsRow = $totalsQuery
+                ->selectRaw('
+                    COALESCE(SUM(stock_outs.quantity), 0) as total_qty,
+                    COALESCE(SUM(CASE
+                        WHEN (pps.unit_sales_price IS NOT NULL AND pps.unit_sales_price > 0 AND pps.unit_sales_price <> COALESCE(pps.unit_price, p.price))
+                        THEN stock_outs.quantity * pps.unit_sales_price
+                        ELSE 0
+                    END), 0) as sale_subtotal,
+                    COALESCE(SUM(CASE
+                        WHEN NOT (pps.unit_sales_price IS NOT NULL AND pps.unit_sales_price > 0 AND pps.unit_sales_price <> COALESCE(pps.unit_price, p.price))
+                        THEN stock_outs.quantity * COALESCE(pps.unit_price, p.price)
+                        ELSE 0
+                    END), 0) as regular_subtotal
+                ')
+                ->first();
+
             $rangeTotals = [
-                'saleSubtotal'    => $saleSubtotal,
-                'regularSubtotal' => $regularSubtotal,
-                'finalTotal'      => $saleSubtotal + $regularSubtotal,
-                'totalQty'        => $totalQty,
+                'saleSubtotal'    => (float) ($totalsRow->sale_subtotal ?? 0),
+                'regularSubtotal' => (float) ($totalsRow->regular_subtotal ?? 0),
+                'finalTotal'      => (float) (($totalsRow->sale_subtotal ?? 0) + ($totalsRow->regular_subtotal ?? 0)),
+                'totalQty'        => (int) ($totalsRow->total_qty ?? 0),
             ];
 
             // ✅ Merge paginator data + filters + rangeTotals into one JSON payload
@@ -183,6 +182,29 @@ class StockOutController extends Controller
 
             $product = Product::findOrFail($validated['product_id']);
 
+            // ✅ Compute current available stock for this product
+            $stockInTotal = (int) DB::table('stock_ins')
+                ->where('product_id', $product->id)
+                ->sum('quantity');
+
+            $stockOutTotal = (int) DB::table('stock_outs')
+                ->where('product_id', $product->id)
+                ->sum('quantity');
+
+            $available = $stockInTotal - $stockOutTotal;
+
+            // ✅ Block if requested qty > available
+            if ($validated['quantity'] > $available) {
+                return response()->json([
+                    'message' => 'Insufficient stock for this product.',
+                    'errors' => [
+                        'quantity' => [
+                            'Available quantity is ' . max($available, 0) . '.',
+                        ],
+                    ],
+                ], 422);
+            }
+
             $stockOut = StockOut::create([
                 'product_id' => $product->id,
                 'quantity'   => $validated['quantity'],
@@ -190,8 +212,6 @@ class StockOutController extends Controller
                 'timestamp'  => $validated['timestamp'] ?? now(),
                 'created_by' => $request->user()->id,
             ]);
-
-            // Price snapshot intentionally disabled in original code
 
             ProductPriceSnapshot::create([
                 'product_id'       => $product->id,
@@ -201,7 +221,6 @@ class StockOutController extends Controller
                 'unit_price'       => $product->price,
                 'unit_sales_price' => $product->sales_price,
             ]);
-
 
             $this->logActivity(
                 'created',
@@ -227,6 +246,7 @@ class StockOutController extends Controller
         }
     }
 
+
     /**
      * PUT/PATCH /api/v1/stock-out/{stockOut}
      */
@@ -244,23 +264,57 @@ class StockOutController extends Controller
                 'timestamp'  => ['nullable', 'date'],
             ]);
 
+            $productId = (int) $validated['product_id'];
+
+            // ✅ Compute current available stock based on DB totals
+            $stockInTotal = (int) DB::table('stock_ins')
+                ->where('product_id', $productId)
+                ->sum('quantity');
+
+            $stockOutTotal = (int) DB::table('stock_outs')
+                ->where('product_id', $productId)
+                ->sum('quantity');
+
+            $available = $stockInTotal - $stockOutTotal;
+
+            // ✅ If product changed, old row's quantity belongs to old product.
+            // For simplicity, treat both cases:
+            if ($productId === (int) $stockOut->product_id) {
+                // same product: add back this row's current quantity
+                $availableWithThisRow = $available + (int) $stockOut->quantity;
+            } else {
+                // product changed: availability is just current totals for new product
+                $availableWithThisRow = $available;
+            }
+
+            if ($validated['quantity'] > $availableWithThisRow) {
+                return response()->json([
+                    'message' => 'Insufficient stock for this product.',
+                    'errors' => [
+                        'quantity' => [
+                            'Available quantity is ' . max($availableWithThisRow, 0) . '.',
+                        ],
+                    ],
+                ], 422);
+            }
+
+            // ✅ Proceed with update
             $stockOut->update([
-                'product_id' => $validated['product_id'],
+                'product_id' => $productId,
                 'quantity'   => $validated['quantity'],
                 'note'       => $validated['note'] ?? null,
                 'timestamp'  => $validated['timestamp'] ?? $stockOut->timestamp,
             ]);
 
-            // Snapshot update disabled (same reasoning as Stock In)
-
+            // Snapshot logic unchanged
             $snapshot = ProductPriceSnapshot::where('stock_out_id', $stockOut->id)->first();
             if ($snapshot) {
                 $snapshot->update([
                     'quantity' => $stockOut->quantity,
                 ]);
-            }else{
-                $product = Product::findOrFail($validated['product_id']);
-                 ProductPriceSnapshot::create([
+            } else {
+                $product = Product::findOrFail($productId);
+                ProductPriceSnapshot::create([
                     'product_id'       => $product->id,
                     'stock_in_id'      => null,
                     'stock_out_id'     => $stockOut->id,
@@ -269,7 +323,6 @@ class StockOutController extends Controller
                     'unit_sales_price' => $product->sales_price,
                 ]);
             }
-
 
             $this->logActivity(
                 'updated',
@@ -294,6 +347,7 @@ class StockOutController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * DELETE /api/v1/stock-out/{stockOut}

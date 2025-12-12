@@ -28,11 +28,13 @@ Route::get('/v1/health', function () {
         'status'  => 'ok',
         'app'     => "Pamela's API",
         'env'     => config('app.env'),
-        'version' => '1.0.0',
+        'version' => '1.2.0',
         'time'    => now()->toIso8601String(),
     ]);
-});
-Route::post('/v1/auth/login', [AuthController::class, 'login']);
+})->withoutMiddleware('throttle:api');
+// Keep login throttled to prevent brute force (10 requests/minute per IP)
+Route::post('/v1/auth/login', [AuthController::class, 'login'])
+    ->middleware('throttle:10,1');
 /*
 |--------------------------------------------------------------------------
 | Protected API Routes (auth:sanctum)
@@ -41,6 +43,8 @@ Route::post('/v1/auth/login', [AuthController::class, 'login']);
 
 Route::prefix('v1')
     ->middleware('auth:sanctum')
+    // Disable API throttling for internal LAN endpoints
+    ->withoutMiddleware('throttle:api')
     ->group(function () {
 
         // Logout (requires valid token)

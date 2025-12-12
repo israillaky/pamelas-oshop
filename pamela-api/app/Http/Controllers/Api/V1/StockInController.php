@@ -89,7 +89,48 @@ class StockInController extends Controller
                 ->orderBy('created_at', $sortDir)
                 ->paginate($perPage);
 
-            return response()->json($stockIns);
+            // Compute fast totals using SQL aggregates (regular amount only)
+            // Use a clean query builder to avoid Eloquent eager-load state conflicts
+            $totalsQuery = \Illuminate\Support\Facades\DB::table('stock_ins')
+                ->join('products', 'stock_ins.product_id', '=', 'products.id')
+                ->leftJoin('product_price_snapshots', 'product_price_snapshots.stock_in_id', '=', 'stock_ins.id')
+                ->when($filters['search'] ?? null, function ($q, $search) {
+                    $q->where(function ($pq) use ($search) {
+                        $pq->where('products.name', 'like', "%{$search}%")
+                           ->orWhere('products.sku', 'like', "%{$search}%")
+                           ->orWhere('products.barcode', 'like', "%{$search}%");
+                    });
+                })
+                ->when($filters['product_id'] ?? null, function ($q, $pid) {
+                    $q->where('stock_ins.product_id', $pid);
+                })
+                ->when($filters['date_from'] ?? null, function ($q, $from) {
+                    $q->whereDate('stock_ins.created_at', '>=', $from);
+                })
+                ->when($filters['date_to'] ?? null, function ($q, $to) {
+                    $q->whereDate('stock_ins.created_at', '<=', $to);
+                });
+
+            $totalsRow = $totalsQuery->selectRaw(
+                'COALESCE(SUM(stock_ins.quantity), 0) AS qty_total,
+                 COALESCE(SUM(stock_ins.quantity * COALESCE(product_price_snapshots.unit_price, products.price)), 0) AS amount_total'
+            )->first();
+
+            $payload = [
+                'rows' => [
+                    'data'         => $stockIns->items(),
+                    'current_page' => $stockIns->currentPage(),
+                    'last_page'    => $stockIns->lastPage(),
+                    'per_page'     => $stockIns->perPage(),
+                    'total'        => $stockIns->total(),
+                ],
+                'totals' => [
+                    'qty'    => (int) ($totalsRow->qty_total ?? 0),
+                    'amount' => (float) ($totalsRow->amount_total ?? 0),
+                ],
+            ];
+
+            return response()->json($payload);
         } catch (Throwable $e) {
             report($e);
 

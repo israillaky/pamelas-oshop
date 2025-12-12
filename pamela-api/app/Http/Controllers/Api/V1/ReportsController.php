@@ -145,37 +145,44 @@ class ReportsController extends Controller
 
                 $qtyTotal = (clone $baseQuery)->sum('quantity');
 
-                // amount / sale_amount based on snapshot or current prices
-                $amountTotal = 0.0;
-                $saleAmountTotal = 0.0;
+                // Optimize totals using SQL aggregates on a clean query builder
+                $movementTable = ($tab === 'stock_in' || $tab === 'sales_in') ? 'stock_ins' : 'stock_outs';
 
-                foreach ($baseQuery->cursor() as $row) {
-                    $qty = (int) $row->quantity;
+                $totalsQuery = DB::table($movementTable)
+                    ->join('products', $movementTable . '.product_id', '=', 'products.id')
+                    ->leftJoin('product_price_snapshots', function ($join) use ($movementTable) {
+                        $join->on('product_price_snapshots.stock_in_id', '=', DB::raw($movementTable === 'stock_ins' ? $movementTable . '.id' : 'NULL'))
+                            ->on('product_price_snapshots.stock_out_id', '=', DB::raw($movementTable === 'stock_outs' ? $movementTable . '.id' : 'NULL'));
+                    })
+                    ->when($filters['product_id'], fn($q, $pid) => $q->where($movementTable . '.product_id', $pid))
+                    ->when($filters['created_by'], fn($q, $uid) => $q->where($movementTable . '.created_by', $uid));
 
-                    $unitPrice = $row->priceSnapshot?->unit_price
-                        ?? $row->product->price
-                        ?? 0;
+                if ($filters['date_from']) {
+                    $totalsQuery->whereDate($movementTable . '.created_at', '>=', $filters['date_from']);
+                }
+                if ($filters['date_to']) {
+                    $totalsQuery->whereDate($movementTable . '.created_at', '<=', $filters['date_to']);
+                }
 
-                    $unitSale = $row->priceSnapshot?->unit_sales_price ?? 0;
+                if ($tab === 'sales_in' || $tab === 'sales_out') {
+                    $totalsRow = $totalsQuery->selectRaw(
+                        'COALESCE(SUM(CASE WHEN (
+                            (product_price_snapshots.unit_sales_price IS NOT NULL AND product_price_snapshots.unit_sales_price > 0 AND product_price_snapshots.unit_sales_price != COALESCE(product_price_snapshots.unit_price, products.price))
+                        ) THEN ' . $movementTable . '.quantity * product_price_snapshots.unit_sales_price ELSE 0 END), 0) AS sale_amount_total,'
+                        . ' COALESCE(SUM(CASE WHEN NOT (
+                            (product_price_snapshots.unit_sales_price IS NOT NULL AND product_price_snapshots.unit_sales_price > 0 AND product_price_snapshots.unit_sales_price != COALESCE(product_price_snapshots.unit_price, products.price))
+                        ) THEN ' . $movementTable . '.quantity * COALESCE(product_price_snapshots.unit_price, products.price) ELSE 0 END), 0) AS amount_total'
+                    )->first();
 
-                    if ($tab === 'sales_in') {
-                         $unitSale = $row->product->sale_price;
-                        if ($unitSale !== null && $unitSale > 0 && $unitSale !== $unitPrice) {
-                            $saleAmountTotal += $qty * $unitSale;
-                        } else {
-                            $amountTotal += $qty * $unitPrice;
-                        }
+                    $amountTotal = (float) ($totalsRow->amount_total ?? 0);
+                    $saleAmountTotal = (float) ($totalsRow->sale_amount_total ?? 0);
+                } else {
+                    $totalsRow = $totalsQuery->selectRaw(
+                        'COALESCE(SUM(' . $movementTable . '.quantity * COALESCE(product_price_snapshots.unit_price, products.price)), 0) AS amount_total'
+                    )->first();
 
-                    }else if ($tab === 'sales_out') {
-
-                        if ($unitSale !== null && $unitSale > 0 && $unitSale !== $unitPrice) {
-                            $saleAmountTotal += $qty * $unitSale;
-                        } else {
-                            $amountTotal += $qty * $unitPrice;
-                        }
-                    } else {
-                        $amountTotal += $qty * $unitPrice;
-                    }
+                    $amountTotal = (float) ($totalsRow->amount_total ?? 0);
+                    $saleAmountTotal = 0.0;
                 }
 
                 $totals = [

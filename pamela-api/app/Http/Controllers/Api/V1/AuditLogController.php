@@ -28,7 +28,6 @@ class AuditLogController extends Controller
 
         return null;
     }
-
     /**
      * GET /api/v1/audit-logs
      *

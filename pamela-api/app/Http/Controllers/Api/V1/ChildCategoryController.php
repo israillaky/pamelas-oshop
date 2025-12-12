@@ -42,46 +42,65 @@ class ChildCategoryController extends Controller
         if (!$request->user()) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
+        try {
 
-        $search      = $request->query('search');
-        $categoryId  = $request->query('category_id');
+            $search      = $request->query('search');
+            $categoryId  = $request->query('category_id');
 
-        // Allowed per-page sizes
-        $allowedSizes = [10, 15, 25];
-        $perPage = (int) $request->query('per_page', 10);
-        if (!in_array($perPage, $allowedSizes, true)) {
-            $perPage = 10;
+            // Allowed per-page sizes
+            $allowedSizes = [10, 15, 25];
+            $perPage = (int) $request->query('per_page', 10);
+            if (!in_array($perPage, $allowedSizes, true)) {
+                $perPage = 10;
+            }
+
+            // Allowed sort direction
+            $sortDir = strtolower($request->query('sort_dir', 'desc'));
+            if (!in_array($sortDir, ['asc', 'desc'], true)) {
+                $sortDir = 'desc';
+            }
+
+            $children = ChildCategory::query()
+                ->when($search, function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                })
+                ->when($categoryId, function ($q) use ($categoryId) {
+                    $q->where('category_id', $categoryId);
+                })
+                ->orderBy('id', $sortDir)
+                ->paginate($perPage);
+
+            return response()->json($children);
+        } catch (Throwable $e) {
+            return response()->json(['message'=> $e->getMessage()], 500);
         }
-
-        // Allowed sort direction
-        $sortDir = strtolower($request->query('sort_dir', 'desc'));
-        if (!in_array($sortDir, ['asc', 'desc'], true)) {
-            $sortDir = 'desc';
-        }
-
-        $children = ChildCategory::query()
-            ->when($search, function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            })
-            ->when($categoryId, function ($q) use ($categoryId) {
-                $q->where('category_id', $categoryId);
-            })
-            ->orderBy('id', $sortDir)
-            ->paginate($perPage);
-
-        return response()->json($children);
     }
 
     public function indexByCategory(Request $request, int $categoryId)
-    {
-        $perPage = (int) $request->input('per_page', 10);
+{
+    if (!$request->user()) {
+        return response()->json(['message' => 'Unauthenticated.'], 401);
+    }
 
+    $perPage = (int) $request->query('per_page', 10);
+    $allowedSizes = [10, 15, 25];
+    if (!in_array($perPage, $allowedSizes, true)) {
+        $perPage = 10;
+    }
+
+    try {
         $children = ChildCategory::where('category_id', $categoryId)
             ->orderBy('name')
             ->paginate($perPage);
 
         return response()->json($children);
+    } catch (\Throwable $e) {
+        report($e);
+        return response()->json(['message' => 'Unable to fetch child categories.'], 500);
     }
+}
+
+
 
 
     /**

@@ -3,7 +3,6 @@
 use Illuminate\Support\Str;
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Default Database Connection Name
@@ -15,9 +14,7 @@ return [
     | is explicitly specified when you execute a query / statement.
     |
     */
-
-    'default' => env('DB_CONNECTION', 'sqlite'),
-
+    'default' => env('DB_CONNECTION', 'mysql'),
     /*
     |--------------------------------------------------------------------------
     | Database Connections
