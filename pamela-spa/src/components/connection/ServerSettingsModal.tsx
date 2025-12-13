@@ -44,7 +44,7 @@ export const ServerSettingsModal: React.FC<ServerSettingsModalProps> = ({
       setApiBaseUrl(url);
 
       // 2) Test /health
-      await api.get("/health");
+      await api.get("/api/v1/health");
 
       // 3) Persist for web
       try {
