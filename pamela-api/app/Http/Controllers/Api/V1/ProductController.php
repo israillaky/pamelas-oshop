@@ -131,13 +131,13 @@ class ProductController extends Controller
         }
 
         try {
-            if ($request['brand_id'] === '' || $request['brand_id'] == 0) {
-                $request['brand_id'] = null;
-            }
+            // Always set brand_id to null by default
+            $request->merge(['brand_id' => null]);
+            
             $data = $request->validate([
                 'name'              => 'required|string|max:255',
                 'sku'               => 'nullable|string|unique:products,sku',
-                'brand_id'          => 'sometimes|nullable|exists:brands,id',
+                'brand_id'          => 'nullable',
                 'category_id'       => 'required|exists:categories,id',
                 'child_category_id' => 'nullable|exists:child_categories,id',
                 'price'             => 'required|numeric|min:0',
@@ -200,13 +200,13 @@ class ProductController extends Controller
         }
 
         try {
-            if ($request['brand_id'] === '' || $request['brand_id'] == 0) {
-                $request['brand_id'] = null;
-            }
+            // Always set brand_id to null by default
+            $request->merge(['brand_id' => null]);
+            
             $data = $request->validate([
                 'name'              => 'required|string|max:255',
                 'sku'               => 'required|string|unique:products,sku,' . $product->id,
-                'brand_id'          => 'sometimes|nullable|exists:brands,id',
+                'brand_id'          => 'nullable',
                 'category_id'       => 'required|exists:categories,id',
                 'child_category_id' => 'nullable|exists:child_categories,id',
                 'price'             => 'required|numeric|min:0',
@@ -236,7 +236,7 @@ class ProductController extends Controller
 
         } catch (Throwable $e) {
             report($e);
-            return response()->json(['message' => 'Unable to update product.'], 500);
+            return response()->json(['message' => 'Unable to update product.'.$e->getMessage()], 500);
         }
     }
 
